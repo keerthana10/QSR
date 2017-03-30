@@ -1,0 +1,50 @@
+//    Openbravo POS is a point of sales application designed for touch screens.
+//    Copyright (C) 2007-2009 Openbravo, S.L.
+//    http://www.openbravo.com/product/pos
+//
+//    This file is part of Openbravo POS.
+//
+//    Openbravo POS is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    Openbravo POS is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with Openbravo POS.  If not, see <http://www.gnu.org/licenses/>.
+
+report = new com.openbravo.pos.reports.PanelReportBean();
+
+report.setTitleKey("Menu.BogoReport");
+report.setReport("/com/sysfore/BogoReport");
+report.setResourceBundle("com/sysfore/SalesByPeriodItemwise_messages");
+
+report.setSentence(" SELECT R.DATENEW, T.TICKETID AS BILLNO, P.NAME AS ITEMNAME, "+
+                               " SUM(TL.UNITS) AS QTY, SUM(TL.UNITS*TL.PRICE) AS PRICE, SALEPRICE,  "+
+                               " SUM(TL.UNITS*TL.PRICE)-SALEPRICE AS OFFERDISCOUNT "+
+                                "FROM RECEIPTS R "+
+                                "JOIN TICKETS T ON T.ID=R.ID "+
+                              "  LEFT JOIN TICKETLINES  TL ON R.ID=TL.TICKET "+
+                               " LEFT JOIN  PRODUCTS P ON P.ID = TL.PRODUCT "+
+                              "  LEFT JOIN PROMOTIONCAMPAIGN PC ON PC.ID=TL.PROMOTIONCAMPAIGNID "+
+                               " LEFT JOIN PROMOTIONRULE PR ON PC.ID=PR.PROMOTIONCAMPAIGNID "+
+                               " WHERE ISCANCELTICKET='N' AND ISNONCHARGABLE='N' AND PR.PROMOTIONTYPEID='BOGO' "+
+                               " AND ?(QBF_FILTER) "+
+                              "  GROUP BY BILLNO,ITEMNAME");
+
+report.addParameter("R.DATENEW");
+report.addParameter("R.DATENEW");
+report.addQBFFilter(new com.openbravo.pos.reports.JParamsDatesInterval());
+
+report.addField("DATENEW", com.openbravo.data.loader.Datas.TIMESTAMP);
+report.addField("BILLNO", com.openbravo.data.loader.Datas.INT);
+report.addField("ITEMNAME", com.openbravo.data.loader.Datas.STRING);
+report.addField("QTY", com.openbravo.data.loader.Datas.DOUBLE);
+report.addField("PRICE", com.openbravo.data.loader.Datas.DOUBLE);
+report.addField("SALEPRICE", com.openbravo.data.loader.Datas.DOUBLE);
+report.addField("OFFERDISCOUNT", com.openbravo.data.loader.Datas.DOUBLE);
+report;
